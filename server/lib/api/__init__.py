@@ -1,10 +1,11 @@
 import logging
 import json
 
-from ..entities import ProviderEncoder, ModelEncoder
+from ..entities import ProviderEncoder, ModelEncoder, PromptEncoder
 from ..sse import Message
 from .inference import inference_bp
 from .provider import provider_bp
+from .prompt import prompt_bp
 from flask import g, Blueprint, current_app, stream_with_context, Response
 
 logger = logging.getLogger(__name__)
@@ -13,6 +14,7 @@ logger.setLevel(logging.INFO)
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 api_bp.register_blueprint(provider_bp)
 api_bp.register_blueprint(inference_bp)
+api_bp.register_blueprint(prompt_bp)
 
 @api_bp.after_request
 def add_cors_header(response):
@@ -33,6 +35,22 @@ def all_models():
     return current_app.response_class(
         response=json.dumps(
             g.get('storage').get_models(), cls=ModelEncoder, indent=4, serialize_as_list=False
+        ),
+        status=200,
+        mimetype='application/json'
+    )
+
+
+@api_bp.route('/prompts', methods=['GET'])
+def all_prompts():
+    '''
+    Returns a list of all prompts
+    '''
+    logger.info("Getting all prompts")
+
+    return current_app.response_class(
+        response=json.dumps(
+            g.get('storage').get_prompts(), cls=PromptEncoder, indent=4
         ),
         status=200,
         mimetype='application/json'

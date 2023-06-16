@@ -6,7 +6,7 @@ os.environ['NODE_ENV'] = 'production'
 
 os.chdir('./app')
 
-subprocess.run(['parcel', 'build', 'src/index.html', '--no-cache', '--no-source-maps'])
+subprocess.run(['npx', 'parcel', 'build', 'src/index.html', '--no-cache', '--no-source-maps'])
 
 os.chdir('..')
 

@@ -1,0 +1,10 @@
+[
+  {
+    "id": "q_and_a_prompt_with_context",
+    "template": "Given the following question and context answer the question only using the provided context. Do not use other information outside of the context. If none of the context is relevant, or you are not sure of the answer, return {no_output_str}.\nRemember, *DO NOT* use any other information outside of the context even if you know the answer.\n> Context:\n>>>\n{context}\n>>>\n> Question:\n{question}\n> Answer:\n",
+    "params": [
+      "question",
+      "context"
+    ]
+  }
+]

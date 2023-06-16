@@ -4,7 +4,7 @@ import json
 import logging
 
 from .event_emitter import EventEmitter, EVENTS
-from .entities import Model, Provider
+from .entities import Model, Provider, Prompt
 from dotenv import set_key, load_dotenv
 from typing import List, Dict, Any
 
@@ -22,10 +22,23 @@ APP_DIR = os.path.join(config_dir, 'openplayground')
 os.makedirs(APP_DIR, exist_ok=True)
 
 class Storage:
-    def __init__(self, models_json_path: str = None, env_file_path: str = None):
+    def __init__(self, models_json_path: str = None, prompts_json_path: str = None, env_file_path: str = None):
         self.event_emitter = EventEmitter()
         self.providers = []
         self.models = []
+
+        self.prompts = {}
+        self.prompts_json = self.__load_prompts__(prompts_json_path)
+
+        for prompt_metadata in self.prompts_json:
+            self.prompts[prompt_metadata["id"]] = Prompt(
+                    id=prompt_metadata["id"],
+                    template=prompt_metadata["template"],
+                    params=prompt_metadata["params"],
+                )
+        logger.info(f'Loaded prompts: {self.prompts}')
+
+
         self.models_json, self.models_json_path = self.__initialize_config__(models_json_path)
         self.env_file_path = env_file_path
 
@@ -70,9 +83,15 @@ class Storage:
         ]:
             EventEmitter().on(event, self.__update___)
 
+    def __load_prompts__(self, prompts_json_path: str = None):
+        with pkg_resources.open_text("server", "prompts.json") as file:
+            return json.load(file)
+        
+
     def __initialize_config__(self, models_json_path: str = None):
         if models_json_path is None:
             models_json_path = os.path.join(APP_DIR, 'models.json')
+        
 
         original_models_json = None
         if not pkg_resources.is_resource('server', 'models.json'):
@@ -133,6 +152,9 @@ class Storage:
 
     def get_models(self) -> List[Model]:
         return self.models
+    
+    def get_prompts(self) -> List[Prompt]:
+        return list(self.prompts.values())
     
     def get_enabled_models(self) -> List[Model]:
         return [model for model in self.models if model.enabled]

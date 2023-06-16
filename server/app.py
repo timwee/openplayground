@@ -330,8 +330,9 @@ def cli():
 @click.option('--debug/--no-debug', default=False, help='Enable or disable Flask debug mode. Default: False.')
 @click.option('--env', '-e', default=".env", help='Path to the environment file for storing and reading API keys. Default: .env.')
 @click.option('--models', '-m', default=None, help='Path to the configuration file for loading models. Default: None.')
+@click.option('--prompts', '-m', default=None, help='Path to the configuration file for loading prompts. Default: None.')
 @click.option('--log-level', '-l', default='INFO', help='Set the logging level. Default: INFO.', type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']))
-def run(host, port, debug, env, models, log_level):
+def run(host, port, debug, env, models, prompts, log_level):
     """
     Run the OpenPlayground server.
 
@@ -350,7 +351,7 @@ def run(host, port, debug, env, models, log_level):
     $ openplayground run --host=0.0.0.0 --port=8080 --debug --env=keys.env --models=models.json --log-level=DEBUG
     """
     logging.basicConfig(level=getattr(logging, log_level.upper()))
-    storage = Storage(models, env)
+    storage = Storage(models, prompts, env)
     app.config['GLOBAL_STATE'] = GlobalStateManager(storage)
 
     app.run(host=host, port=port, debug=debug)

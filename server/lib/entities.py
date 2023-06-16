@@ -125,3 +125,32 @@ class ProviderEncoder(json.JSONEncoder):
     def to_camel_case(snake_str):
         components = snake_str.split('_')
         return components[0] + ''.join(x.capitalize() for x in components[1:])
+    
+class Prompt:
+    def __init__(self, id: str, template: str, params: List[str]):
+        self.id = id
+        self.template = template
+        self.params = params
+
+    def copy(self):
+        return Prompt(
+            id=self.id,
+            params=self.params,
+            template=self.template
+        )
+
+    def __repr__(self):
+        return f'Prompt({self.id}, {self.params}, {self.template})'
+
+class PromptEncoder(json.JSONEncoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def default(self, obj):
+        if isinstance(obj, Prompt):
+            return {
+                "id": obj.id,
+                "template": obj.template,
+                "params": obj.params,
+            }
+        return super().default(obj)
